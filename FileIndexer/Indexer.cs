@@ -16,6 +16,8 @@ namespace FileIndexer {
         private static readonly Random _random = new Random();
         private static readonly StringBuilder _builder = new StringBuilder();
 
+        private static readonly long _indexSize = 1000;
+
         public static void GenerateFile(Megabyte fileSize) {
             if (File.Exists(_filePath)) {
                 File.Delete(_filePath);
@@ -52,8 +54,10 @@ namespace FileIndexer {
                 long lineNumber = 0;
                 while ((line = sr.ReadLine()) != null) {
                     size += Encoding.UTF8.GetByteCount(line + Environment.NewLine);
-                    var indexEntry = $"{lineNumber} {size}";
-                    sw.WriteLine(indexEntry);
+                    if (lineNumber% _indexSize == 0) {
+                        var indexEntry = $"{lineNumber} {size}";
+                        sw.WriteLine(indexEntry);
+                    }
                     lineNumber++;
                 }
 
@@ -85,8 +89,13 @@ namespace FileIndexer {
 
         public static string GetLineByDictionaryLookup(IDictionary<long,long> index, long lineNumber) {
             using (StreamReader sr = File.OpenText(_filePath)) {
-                var offset = index[lineNumber - 2];
+                var roundDownNumber = Math.Max((((int)lineNumber - 2) / _indexSize) * _indexSize, 0);
+                var offset = index[roundDownNumber];
                 sr.BaseStream.Seek(offset, SeekOrigin.Begin);
+                offset = (lineNumber - 2) - roundDownNumber;
+                for (var i = 0; i < offset; i++) {
+                    sr.ReadLine();
+                }
                 return sr.ReadLine();
             }
         }

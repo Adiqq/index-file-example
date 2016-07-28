@@ -19,7 +19,9 @@ namespace FileIndexer {
             CompareSearchTime(index, 250000);
 
             CompareSearchTime(index, lineCount / 8);
+            CompareSearchTime(index, lineCount / 6);
             CompareSearchTime(index, lineCount / 4);
+            CompareSearchTime(index, lineCount / 3);
             CompareSearchTime(index, lineCount / 2);
             CompareSearchTime(index, lineCount);
 
@@ -39,6 +41,7 @@ namespace FileIndexer {
             sw.Reset();
 
             sw.Start();
+            index = Indexer.CreateDictionaryFromIndex();
             line = Indexer.GetLineByDictionaryLookup(index, lineNumber);
             sw.Stop();
 
